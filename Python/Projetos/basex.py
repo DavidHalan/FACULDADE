@@ -1,3 +1,8 @@
+'''
+O projeto baseX trata-se de um software de linha de comando para conversão de 
+números entre bases posicionais. 
+As bases utilizadas serão: binária, octal, decimal e hexadecimal. 
+'''
 import sys
 
 def binario_para_decimal(numero):
