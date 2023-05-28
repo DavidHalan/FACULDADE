@@ -1,7 +1,7 @@
 '''
 O projeto baseX trata-se de um software de linha de comando para conversão de 
 números entre bases posicionais. 
-As bases utilizadas serão: binária, octal, decimal e hexadecimal. 
+As bases utilizadas são: binária, octal, decimal e hexadecimal. 
 '''
 import sys
 
@@ -61,26 +61,26 @@ def converter_base(numero, base):
 
 def converter_numero(numero, base_origem, bases_destino):
     try:
-        if base_origem == "--b":
+        if base_origem == '--b':
             decimal = binario_para_decimal(numero)
-            tipo_origem = "binário"
-        elif base_origem == "--o":
+            tipo_origem = 'binário'
+        elif base_origem == '--o':
             decimal = octal_para_decimal(numero)
-            tipo_origem = "octal"
-        elif base_origem == "--d":
+            tipo_origem = 'octal'
+        elif base_origem == '--d':
             decimal = int(numero)
-            tipo_origem = "decimal"
-        elif base_origem == "--h":
+            tipo_origem = 'decimal'
+        elif base_origem == '--h':
             decimal = hexadecimal_para_decimal(numero)
-            tipo_origem = "hexadecimal"
+            tipo_origem = 'hexadecimal'
         else:
             return None, None
-    except ValueError:
+    except:
         return None, None
 
     resultados = {}
-    if "--all" in bases_destino:
-        bases_destino = ["--b", "--o", "--d", "--h"]
+    if '--all' in bases_destino:
+        bases_destino = ['--b', '--o', '--d', '--h']
 
     for base_destino in bases_destino:
         if base_destino != base_origem:
@@ -94,27 +94,27 @@ def converter_numeros_arquivo(nome_arquivo):
     try:
         with open(nome_arquivo, 'r') as arquivo:
             linhas = arquivo.readlines()
-    except FileNotFoundError:
-        print(f"Erro: Arquivo '{nome_arquivo}' não encontrado.")
+    except:
+        print(f'Erro: Arquivo "{nome_arquivo}" não encontrado.')
         return
 
     for i, linha in enumerate(linhas, start=1):
         dados = linha.strip().split()
         if len(dados) < 2:
-            print(f"Erro: Formato inválido na linha {i} do arquivo.")
+            print(f'Erro: Formato inválido na linha {i} do arquivo.')
             continue
 
         numero = dados[0]
         base_origem = dados[1]
         bases_destino = dados[2:]
 
-        print(f"\nConversão {i}:")
+        print(f'\nConversão {i}:')
         resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
 
         if resultados is None:
-            print(f"Erro: Número inválido para a base fornecida: {numero}")
+            print(f'Erro: Número inválido para a base fornecida: {numero}')
         elif not resultados:
-            print(f"Erro de parâmetros de conversão para o número: {numero}")
+            print(f'Erro de parâmetros de conversão para o número: {numero}')
         else:
             exibir_resultados(numero, resultados, tipo_origem)
 
@@ -130,36 +130,32 @@ def exibir_ajuda():
     print('--d\t\tdecimal')
     print('--h\t\thexadecimal')
     print('--all\t\ttodas as bases')
+    print('--file\t\tconversão de números a partir de um arquivo')
     print('--help\t\tajuda do sistema')
-    print('--version\tversão do código e direitos de uso')
+    print('--version\tversão do código')
     print('============================================================')
 
 def exibir_versao():
     print('==================================')
     print('    baseX - Conversor de bases    ')
     print('==================================')
-    print('Versão: 1.1')
+    print('Versão: 1.2')
     print('Direitos de Uso: Livre')
     print('==================================')
 
 def exibir_resultados(numero, resultados, tipo_origem):
     bases = {
-        "--b": "binário",
-        "--o": "octal",
-        "--d": "decimal",
-        "--h": "hexadecimal"
+        '--b': 'binário',
+        '--o': 'octal',
+        '--d': 'decimal',
+        '--h': 'hexadecimal'
     }
-    print(f"Número de origem: {numero}({tipo_origem})")
+    print(f'Número de origem: {numero}({tipo_origem})')
     for base, resultado in resultados.items():
-        print(f"{resultado}({bases[base]})", end=" ")
+        print(f'{resultado}({bases[base]})', end=' ')
     print()
 
 def main():
-    if len(sys.argv) < 2 or len(sys.argv) > 7:
-        print('Erro: Número incorreto de parâmetros.')
-        exibir_ajuda()
-        return
-
     if len(sys.argv) == 2 and sys.argv[1] == '--help':
         exibir_ajuda()
         return
@@ -168,10 +164,24 @@ def main():
         exibir_versao()
         return
 
-    if len(sys.argv) == 3 and sys.argv[1] == "--file":
+    if len(sys.argv) >= 2 and sys.argv[1] == '--file':
+        if len(sys.argv) == 2:
+            print('Erro: Nenhum arquivo fornecido ou extensão inválida.')
+            exibir_ajuda()
+            return
+
         nome_arquivo = sys.argv[2]
+        if not nome_arquivo.endswith('.txt'):
+            nome_arquivo += '.txt'
+        
         converter_numeros_arquivo(nome_arquivo)
         return
+    
+    if len(sys.argv) < 3 or len(sys.argv) > 7:
+        print('Erro: Número incorreto de parâmetros.')
+        exibir_ajuda()
+        return
+
 
     numero = sys.argv[1]
     base_origem = sys.argv[2]
