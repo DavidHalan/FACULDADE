@@ -125,6 +125,7 @@ def exibir_ajuda():
     print('Exemplo: python basex.py 23456 --d --b --o')
     print('Para uso de arquivos como parâmetros e notas:')
     print('Uso: python basex.py --file <nome do arquivo>')
+    print('Notas: pyhton basex.py --help file')
     print('Exemplo: python basex.py --file entrada.txt')
     print()
     print('Opções de base:')
@@ -151,7 +152,7 @@ def exibir_versao():
     print('==================================')
     print('    baseX - Conversor de bases    ')
     print('==================================')
-    print('Versão: 1.3')
+    print('Versão: 1.4')
     print('Direitos de Uso: Livre')
     print('==================================')
 
