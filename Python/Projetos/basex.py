@@ -123,6 +123,9 @@ def exibir_ajuda():
     print('============================================================')
     print('Uso: python basex.py <número> <base> <BASES DE CONVERSÃO>')
     print('Exemplo: python basex.py 23456 --d --b --o')
+    print('Para uso de arquivos como parâmetros e notas:')
+    print('Uso: python basex.py --file <nome do arquivo>')
+    print('Exemplo: python basex.py --file entrada.txt')
     print()
     print('Opções de base:')
     print('--b\t\tbinário')
@@ -135,11 +138,20 @@ def exibir_ajuda():
     print('--version\tversão do código')
     print('============================================================')
 
+def exibir_nota_file():
+    print('Nota para o uso desse parametro para evitar erros:')
+    print()
+    print('Se você fornecer um arquivo .bin, o código tentará ler o conteúdo desse arquivo.')
+    print('No entanto, a conversão de base depende da interpretação correta dos dados no arquivo.')
+    print('Se o arquivo contiver dados que não possam ser interpretados como números ou não estiverem formatados corretamente para a conversão de base, podem ocorrer erros durante a execução do programa.')
+    print('Certifique-se de fornecer arquivos de texto com formato adequado para evitar erros de conversão.')
+
+
 def exibir_versao():
     print('==================================')
     print('    baseX - Conversor de bases    ')
     print('==================================')
-    print('Versão: 1.2')
+    print('Versão: 1.3')
     print('Direitos de Uso: Livre')
     print('==================================')
 
@@ -159,7 +171,10 @@ def main():
     if len(sys.argv) == 2 and sys.argv[1] == '--help':
         exibir_ajuda()
         return
-    
+    elif (len(sys.argv) == 3 and sys.argv[1] == '--help') and sys.argv[2] == 'file':
+        exibir_nota_file()
+        return
+
     if len(sys.argv) == 2 and sys.argv[1] == '--version':
         exibir_versao()
         return
