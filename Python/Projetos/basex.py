@@ -111,10 +111,19 @@ def converter_numeros_arquivo(nome_arquivo):
         print(f'\nConversão {i}:')
         resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
 
+        if base_origem == '--b':
+            tipo_origem = 'binário'
+        elif base_origem == '--o':
+            tipo_origem = 'octal'
+        elif base_origem == '--d':
+            tipo_origem = 'decimal'
+        elif base_origem == '--h':
+            tipo_origem = 'hexadecimal'
+        
         if resultados is None:
-            print(f'Erro: Número inválido para a base fornecida: {numero}')
+            print(f'Erro: Número inválido para a base fornecida: {numero}({tipo_origem})')
         elif not resultados:
-            print(f'Erro de parâmetros de conversão para o número: {numero}')
+            print(f'Erro de parâmetros de conversão para o número: {numero}({tipo_origem})')
         else:
             exibir_resultados(numero, resultados, tipo_origem)
 
@@ -142,6 +151,7 @@ def exibir_ajuda():
 def exibir_nota_file():
     print('Nota para o uso desse parametro para evitar erros:')
     print()
+    print('As informações no arquivo devem estar neste formato: <numero> <base> <bases de convers>')
     print('Se você fornecer um arquivo .bin, o código tentará ler o conteúdo desse arquivo.')
     print('No entanto, a conversão de base depende da interpretação correta dos dados no arquivo.')
     print('Se o arquivo contiver dados que não possam ser interpretados como números ou não estiverem formatados corretamente para a conversão de base, podem ocorrer erros durante a execução do programa.')
@@ -152,7 +162,7 @@ def exibir_versao():
     print('==================================')
     print('    baseX - Conversor de bases    ')
     print('==================================')
-    print('Versão: 1.4')
+    print('Versão: 1.5')
     print('Direitos de Uso: Livre')
     print('==================================')
 
