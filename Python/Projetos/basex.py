@@ -90,6 +90,35 @@ def converter_numero(numero, base_origem, bases_destino):
     
     return resultados, tipo_origem
 
+def converter_numeros_arquivo(nome_arquivo):
+    try:
+        with open(nome_arquivo, 'r') as arquivo:
+            linhas = arquivo.readlines()
+    except FileNotFoundError:
+        print(f"Erro: Arquivo '{nome_arquivo}' não encontrado.")
+        return
+
+    for i, linha in enumerate(linhas, start=1):
+        dados = linha.strip().split()
+        if len(dados) < 2:
+            print(f"Erro: Formato inválido na linha {i} do arquivo.")
+            continue
+
+        numero = dados[0]
+        base_origem = dados[1]
+        bases_destino = dados[2:]
+
+        print(f"\nConversão {i}:")
+        resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
+
+        if resultados is None:
+            print(f"Erro: Número inválido para a base fornecida: {numero}")
+        elif not resultados:
+            print(f"Erro de parâmetros de conversão para o número: {numero}")
+        else:
+            exibir_resultados(numero, resultados, tipo_origem)
+
+
 def exibir_ajuda():
     print('============================================================')
     print('Uso: python basex.py <número> <base> <BASES DE CONVERSÃO>')
@@ -109,7 +138,7 @@ def exibir_versao():
     print('==================================')
     print('    baseX - Conversor de bases    ')
     print('==================================')
-    print('Versão: 1.0')
+    print('Versão: 1.1')
     print('Direitos de Uso: Livre')
     print('==================================')
 
@@ -127,8 +156,7 @@ def exibir_resultados(numero, resultados, tipo_origem):
 
 def main():
     if len(sys.argv) < 2 or len(sys.argv) > 7:
-        print('=============================================')
-        print('  Erro: Número incorreto de parâmetros.')
+        print('Erro: Número incorreto de parâmetros.')
         exibir_ajuda()
         return
 
@@ -140,19 +168,22 @@ def main():
         exibir_versao()
         return
 
+    if len(sys.argv) == 3 and sys.argv[1] == "--file":
+        nome_arquivo = sys.argv[2]
+        converter_numeros_arquivo(nome_arquivo)
+        return
+
     numero = sys.argv[1]
     base_origem = sys.argv[2]
     bases_destino = sys.argv[3:]
 
     if base_origem not in ['--b', '--o', '--d', '--h']:
-        print('==========================================')
-        print('  Erro na base de origem do número.')
+        print('Erro na base de origem do número.')
         exibir_ajuda()
         return
 
     for base in bases_destino:
         if base not in ['--b', '--o', '--d', '--h', '--all']:
-            print('========================================')
             print(f'  Erro: Base de conversão inválida: {base}')
             exibir_ajuda()
             return
@@ -160,14 +191,12 @@ def main():
     resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
 
     if resultados is None:
-        print('==========================================')
-        print('  Erro: Número inválido para a base fornecida.')
+        print('Erro: Número inválido para a base fornecida.')
         exibir_ajuda()
         return
 
     if not resultados:
-        print('==========================================')
-        print('  Erro de parâmetros de conversão.')
+        print('Erro de parâmetros de conversão.')
         exibir_ajuda()
         return
 
