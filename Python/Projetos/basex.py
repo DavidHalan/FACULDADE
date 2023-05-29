@@ -229,8 +229,9 @@ def main():
         elif (sys.argv[1] == '--help' or sys.argv[1] == '--version') and len(sys.argv) >= 3:
             informar_parametros_invalidos(2)
         elif sys.argv[1] == '--file' and len(sys.argv) == 3:
+            arquivo = sys.argv[2]
             if not sys.argv[2].endswith('.txt'):
-                arquivo = sys.argv[2] + '.txt'
+                arquivo += '.txt'
             converter_numeros_arquivo(arquivo)
         elif sys.argv[1] == '--file' and len(sys.argv) > 3:
             informar_parametros_invalidos(3)
