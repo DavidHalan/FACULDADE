@@ -3,7 +3,15 @@ O projeto baseX trata-se de um software de linha de comando para conversão de
 números entre bases posicionais. 
 As bases utilizadas são: binária, octal, decimal e hexadecimal. 
 '''
+
 import sys
+
+bases = {
+        '--b': 'binário',
+        '--o': 'octal',
+        '--d': 'decimal',
+        '--h': 'hexadecimal'
+    }
 
 def binario_para_decimal(numero):
     return int(numero, 2)
@@ -98,6 +106,8 @@ def converter_numeros_arquivo(nome_arquivo):
         print(f'Erro: Arquivo "{nome_arquivo}" não encontrado.')
         return
 
+    conversoes = []
+
     for i, linha in enumerate(linhas, start=1):
         dados = linha.strip().split()
         if len(dados) < 2:
@@ -122,11 +132,40 @@ def converter_numeros_arquivo(nome_arquivo):
         
         if resultados is None:
             print(f'Erro: Número inválido para a base fornecida: {numero}({tipo_origem})')
+            conversoes.append((numero, None, tipo_origem))
         elif not resultados:
             print(f'Erro de parâmetros de conversão para o número: {numero}({tipo_origem})')
+            conversoes.append((numero, None, tipo_origem))
         else:
+            conversoes.append((numero, resultados, tipo_origem))
             exibir_resultados(numero, resultados, tipo_origem)
 
+    salvar_arquivo = input('\nDeseja salvar as conversões em um arquivo? (s/n): ')
+    if salvar_arquivo.lower() == 's':
+        nome_saida = input("Digite o nome do arquivo(sem a extensão): ")
+        nome_arquivo_saida = nome_saida + ".txt"
+        salvar_conversoes(nome_arquivo, nome_arquivo_saida, conversoes)
+    else:
+        print('As conversões não serão salvas em arquivo.')
+
+def salvar_conversoes(nome_arquivo, nome_arquivo_saida, conversoes):
+    try:
+        with open(nome_arquivo_saida, 'w') as arquivo_saida:
+            arquivo_saida.write(f'Conversões a partir do arquivo: {nome_arquivo}\n\n')
+            for numero, resultados, tipo_origem in conversoes:
+                arquivo_saida.write(f'Número de origem: {numero}({tipo_origem})\n')
+                if resultados is None:
+                    arquivo_saida.write('Erro: Número inválido para a base fornecida.\n')
+                elif not resultados:
+                    arquivo_saida.write('Erro de parâmetros de conversão.\n')
+                else:
+                    for base, resultado in resultados.items():
+                        arquivo_saida.write(f'{resultado}({bases[base]}) ')
+                    arquivo_saida.write('\n')
+                arquivo_saida.write('\n')
+        print(f'Conversões salvas com sucesso no arquivo: {nome_arquivo_saida}')
+    except:
+        print(f'Erro ao salvar as conversões no arquivo: {nome_arquivo_saida}')
 
 def exibir_ajuda():
     print('============================================================')
@@ -149,94 +188,72 @@ def exibir_ajuda():
     print('============================================================')
 
 def exibir_nota_file():
-    print('Nota para o uso desse parametro para evitar erros:')
+    print('Nota para o uso do parametro "--file" para evitar erros:')
     print()
-    print('As informações no arquivo devem estar neste formato: <numero> <base> <bases de convers>')
-    print('Se você fornecer um arquivo .bin, o código tentará ler o conteúdo desse arquivo.')
+    print('As informações no arquivo devem estar neste formato: <numero> <base> <bases de conversão>')
+    print('Se você fornecer um arquivo .bin por exemplo, o código tentará ler o conteúdo desse arquivo.')
     print('No entanto, a conversão de base depende da interpretação correta dos dados no arquivo.')
     print('Se o arquivo contiver dados que não possam ser interpretados como números ou não estiverem formatados corretamente para a conversão de base, podem ocorrer erros durante a execução do programa.')
-    print('Certifique-se de fornecer arquivos de texto com formato adequado para evitar erros de conversão.')
-
+    print('Certifique-se de fornecer arquivos de texto com formato adequado para evitar erros de conversão.\n')
 
 def exibir_versao():
     print('==================================')
     print('    baseX - Conversor de bases    ')
     print('==================================')
-    print('Versão: 1.5')
+    print('Versão: 2.0')
     print('Direitos de Uso: Livre')
     print('==================================')
 
 def exibir_resultados(numero, resultados, tipo_origem):
-    bases = {
-        '--b': 'binário',
-        '--o': 'octal',
-        '--d': 'decimal',
-        '--h': 'hexadecimal'
-    }
     print(f'Número de origem: {numero}({tipo_origem})')
     for base, resultado in resultados.items():
         print(f'{resultado}({bases[base]})', end=' ')
     print()
 
+def informar_parametros_invalidos(indice):
+    parametros_invalidos = sys.argv[indice:]
+    print(f'\nERRO: Parâmetros inválidos "{" ".join(parametros_invalidos)}"!')
+    print('Use: "python basex --help" para informações de uso do programa!\n')
+
+
 def main():
-    if len(sys.argv) == 2 and sys.argv[1] == '--help':
-        exibir_ajuda()
-        return
-    elif (len(sys.argv) == 3 and sys.argv[1] == '--help') and sys.argv[2] == 'file':
-        exibir_nota_file()
-        return
-
-    if len(sys.argv) == 2 and sys.argv[1] == '--version':
-        exibir_versao()
-        return
-
-    if len(sys.argv) >= 2 and sys.argv[1] == '--file':
-        if len(sys.argv) == 2:
-            print('Erro: Nenhum arquivo fornecido ou extensão inválida.')
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '--version' and len(sys.argv) == 2:
+            exibir_versao()
+        elif sys.argv[1] == '--help' and len(sys.argv) == 2:
             exibir_ajuda()
-            return
+        elif sys.argv[1] == '--help' and len(sys.argv) == 3 and sys.argv[2] == 'file':
+            exibir_nota_file()
+        elif sys.argv[1] == '--help' and sys.argv[2] == 'file' and len(sys.argv) > 3:
+            informar_parametros_invalidos(3)
+        elif (sys.argv[1] == '--help' or sys.argv[1] == '--version') and len(sys.argv) >= 3:
+            informar_parametros_invalidos(2)
+        elif sys.argv[1] == '--file' and len(sys.argv) == 3:
+            if not sys.argv[2].endswith('.txt'):
+                arquivo = sys.argv[2] + '.txt'
+            converter_numeros_arquivo(arquivo)
+        elif sys.argv[1] == '--file' and len(sys.argv) > 3:
+            informar_parametros_invalidos(3)
+        elif sys.argv[3] == '--all' and len(sys.argv) > 4:
+            informar_parametros_invalidos(4)
+        elif len(sys.argv) < 7:
+            numero = sys.argv[1]
+            base_origem = sys.argv[2]
+            bases_destino = sys.argv[3:]
 
-        nome_arquivo = sys.argv[2]
-        if not nome_arquivo.endswith('.txt'):
-            nome_arquivo += '.txt'
-        
-        converter_numeros_arquivo(nome_arquivo)
-        return
-    
-    if len(sys.argv) < 3 or len(sys.argv) > 7:
-        print('Erro: Número incorreto de parâmetros.')
-        exibir_ajuda()
-        return
+            resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
 
-
-    numero = sys.argv[1]
-    base_origem = sys.argv[2]
-    bases_destino = sys.argv[3:]
-
-    if base_origem not in ['--b', '--o', '--d', '--h']:
-        print('Erro na base de origem do número.')
-        exibir_ajuda()
-        return
-
-    for base in bases_destino:
-        if base not in ['--b', '--o', '--d', '--h', '--all']:
-            print(f'  Erro: Base de conversão inválida: {base}')
-            exibir_ajuda()
-            return
-
-    resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
-
-    if resultados is None:
-        print('Erro: Número inválido para a base fornecida.')
-        exibir_ajuda()
-        return
-
-    if not resultados:
-        print('Erro de parâmetros de conversão.')
-        exibir_ajuda()
-        return
-
-    exibir_resultados(numero, resultados, tipo_origem)
+            if resultados is None:
+                print(f'\nErro: Número inválido para a base fornecida: {numero}({bases[base_origem]})\n')
+            elif not resultados:
+                print(f'\nErro de parâmetros de conversão para o número: {numero}({bases[base_origem]})\n')
+            else:
+                exibir_resultados(numero, resultados, tipo_origem)
+        else:
+            informar_parametros_invalidos(6)
+    else:
+        print('\nERRO: Falta de parâmetros!')
+        print('Use: "python basex --help" para informações de uso do programa!\n')
 
 if __name__ == '__main__':
     main()
