@@ -127,24 +127,21 @@ def converter_numeros_arquivo(nome_arquivo):
         base_origem = dados[1]
         bases_destino = dados[2:]
 
+        bases_invalidas = [base for base in bases_destino if base not in bases]
+        if bases_invalidas:
+            print(f'\nConversão {i}:')
+            print(f'ERRO: Bases de conversão inválidas na linha {i} do arquivo: {" ".join(bases_invalidas)}')
+            conversoes.append((numero, None, None))
+            continue
 
         print(f'\nConversão {i}:')
         resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
 
-        if base_origem == '--b':
-            tipo_origem = 'binário'
-        elif base_origem == '--o':
-            tipo_origem = 'octal'
-        elif base_origem == '--d':
-            tipo_origem = 'decimal'
-        elif base_origem == '--h':
-            tipo_origem = 'hexadecimal'
-        
         if resultados is None:
-            print(f'ERRO: Número inválido para a base fornecida: {numero}({tipo_origem})')
+            print(f'ERRO: Número inválido para a base fornecida: {numero}({bases[base_origem]})')
             conversoes.append((numero, None, tipo_origem))
         elif not resultados:
-            print(f'ERRO de parâmetros de conversão para o número: {numero}({tipo_origem})')
+            print(f'ERRO de parâmetros de conversão para o número: {numero}({bases[base_origem]})')
             conversoes.append((numero, None, tipo_origem))
         else:
             conversoes.append((numero, resultados, tipo_origem))
@@ -152,7 +149,7 @@ def converter_numeros_arquivo(nome_arquivo):
 
     salvar_arquivo = input('\nDeseja salvar as conversões em um arquivo? (s/n): ')
     if salvar_arquivo.lower() == 's':
-        nome_saida = input("Digite o nome do arquivo(sem a extensão): ")
+        nome_saida = input("Digite o nome do arquivo (sem a extensão): ")
         nome_arquivo_saida = nome_saida + ".txt"
         salvar_conversoes(nome_arquivo, nome_arquivo_saida, conversoes)
     else:
