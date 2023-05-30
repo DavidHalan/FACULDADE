@@ -69,6 +69,11 @@ def converter_base(numero, base):
 
 def converter_numero(numero, base_origem, bases_destino):
     try:
+        sinal = ''
+        if numero.startswith('-'):
+            sinal = '-'
+            numero = numero[1:]
+
         if base_origem == '--b':
             decimal = binario_para_decimal(numero)
             tipo_origem = 'binário'
@@ -95,7 +100,11 @@ def converter_numero(numero, base_origem, bases_destino):
             resultado = converter_base(decimal, base_destino)
             if resultado:
                 resultados[base_destino] = resultado
-    
+
+    if sinal:
+        for base, resultado in resultados.items():
+            resultados[base] = sinal + resultado
+
     return resultados, tipo_origem
 
 def converter_numeros_arquivo(nome_arquivo):
@@ -103,7 +112,7 @@ def converter_numeros_arquivo(nome_arquivo):
         with open(nome_arquivo, 'r') as arquivo:
             linhas = arquivo.readlines()
     except:
-        print(f'Erro: Arquivo "{nome_arquivo}" não encontrado.')
+        print(f'\nERRO: Arquivo "{nome_arquivo}" não encontrado.\n')
         return
 
     conversoes = []
@@ -111,12 +120,13 @@ def converter_numeros_arquivo(nome_arquivo):
     for i, linha in enumerate(linhas, start=1):
         dados = linha.strip().split()
         if len(dados) < 2:
-            print(f'Erro: Formato inválido na linha {i} do arquivo.')
+            print(f'ERRO: Formato inválido na linha {i} do arquivo.')
             continue
 
         numero = dados[0]
         base_origem = dados[1]
         bases_destino = dados[2:]
+
 
         print(f'\nConversão {i}:')
         resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
@@ -131,10 +141,10 @@ def converter_numeros_arquivo(nome_arquivo):
             tipo_origem = 'hexadecimal'
         
         if resultados is None:
-            print(f'Erro: Número inválido para a base fornecida: {numero}({tipo_origem})')
+            print(f'ERRO: Número inválido para a base fornecida: {numero}({tipo_origem})')
             conversoes.append((numero, None, tipo_origem))
         elif not resultados:
-            print(f'Erro de parâmetros de conversão para o número: {numero}({tipo_origem})')
+            print(f'ERRO de parâmetros de conversão para o número: {numero}({tipo_origem})')
             conversoes.append((numero, None, tipo_origem))
         else:
             conversoes.append((numero, resultados, tipo_origem))
@@ -147,15 +157,17 @@ def converter_numeros_arquivo(nome_arquivo):
         salvar_conversoes(nome_arquivo, nome_arquivo_saida, conversoes)
     else:
         print('As conversões não serão salvas em arquivo.')
+    print()
 
 def salvar_conversoes(nome_arquivo, nome_arquivo_saida, conversoes):
     try:
         with open(nome_arquivo_saida, 'w') as arquivo_saida:
             arquivo_saida.write(f'Conversões a partir do arquivo: {nome_arquivo}\n\n')
-            for numero, resultados, tipo_origem in conversoes:
+            for i, (numero, resultados, tipo_origem) in enumerate(conversoes, start=1):
+                arquivo_saida.write(f'Conversão {i}:\n')
                 arquivo_saida.write(f'Número de origem: {numero}({tipo_origem})\n')
                 if resultados is None:
-                    arquivo_saida.write('Erro: Número inválido para a base fornecida.\n')
+                    arquivo_saida.write('ERRO: Número inválido para a base fornecida.\n')
                 elif not resultados:
                     arquivo_saida.write('Erro de parâmetros de conversão.\n')
                 else:
@@ -163,9 +175,9 @@ def salvar_conversoes(nome_arquivo, nome_arquivo_saida, conversoes):
                         arquivo_saida.write(f'{resultado}({bases[base]}) ')
                     arquivo_saida.write('\n')
                 arquivo_saida.write('\n')
-        print(f'Conversões salvas com sucesso no arquivo: {nome_arquivo_saida}')
+        print(f'As conversões foram salvas no arquivo: "{nome_arquivo_saida}".')
     except:
-        print(f'Erro ao salvar as conversões no arquivo: {nome_arquivo_saida}')
+        print(f'ERRO: Não foi possível salvar as conversões no arquivo "{nome_arquivo_saida}".')
 
 def exibir_ajuda():
     print('============================================================')
@@ -215,8 +227,7 @@ def informar_parametros_invalidos(indice):
     print(f'\nERRO: Parâmetros inválidos "{" ".join(parametros_invalidos)}"!')
     print('Use: "python basex --help" para informações de uso do programa!\n')
 
-
-def main():
+def processar_parametros():
     if len(sys.argv) > 1:
         if sys.argv[1] == '--version' and len(sys.argv) == 2:
             exibir_versao()
@@ -242,10 +253,16 @@ def main():
             base_origem = sys.argv[2]
             bases_destino = sys.argv[3:]
 
+            bases_invalidas = [base for base in bases_destino if base not in ['--b', '--o', '--d', '--h', '--all']]
+            if bases_invalidas:
+                print(f'\nERRO: Bases de conversão inválidas: "{" ".join(bases_invalidas)}"!')
+                print('Use: "python basex --help" para informações de uso do programa!\n')
+                return
+            
             resultados, tipo_origem = converter_numero(numero, base_origem, bases_destino)
 
             if resultados is None:
-                print(f'\nErro: Número inválido para a base fornecida: {numero}({bases[base_origem]})\n')
+                print(f'\nERRO: Número inválido para a base fornecida: {numero}({bases[base_origem]})\n')
             elif not resultados:
                 print(f'\nErro de parâmetros de conversão para o número: {numero}({bases[base_origem]})\n')
             else:
@@ -255,6 +272,9 @@ def main():
     else:
         print('\nERRO: Falta de parâmetros!')
         print('Use: "python basex --help" para informações de uso do programa!\n')
+
+def main():
+    processar_parametros()
 
 if __name__ == '__main__':
     main()
