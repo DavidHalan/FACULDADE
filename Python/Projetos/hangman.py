@@ -1,4 +1,8 @@
 import random
+import os
+
+def limpar_tela():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def escolher_palavra():
     palavras = ['banana', 'abacaxi', 'laranja', 'morango', 'uva']
@@ -22,8 +26,11 @@ def jogo_da_forca():
     print("Bem-vindo ao Jogo da Forca!")
     print("Adivinhe a palavra secreta digitando uma letra de cada vez.")
     print(f"Você tem {max_tentativas} tentativas.")
+    input("Pressione Enter para começar...")
 
     while tentativas < max_tentativas:
+        limpar_tela()
+
         print("\n" + palavra_adivinhada)
 
         letra = input("Digite uma letra: ")
@@ -34,12 +41,14 @@ def jogo_da_forca():
         if letra in palavra_secreta:
             palavra_adivinhada = atualizar_palavra(palavra_secreta, palavra_adivinhada, letra)
             if palavra_adivinhada == palavra_secreta:
+                limpar_tela()
                 print("Você venceu!")
                 return
         else:
             tentativas += 1
             print(f"Letra errada! Tentativas restantes: {max_tentativas - tentativas}")
 
+    limpar_tela()
     print("Você perdeu! A palavra secreta era:", palavra_secreta)
 
 jogo_da_forca()
